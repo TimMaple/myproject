@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.myproject.admin.dao.UserDao">
+    <sql id="selectUserColumns">
+          a.id,
+          a.username AS "userName",
+          a.password,
+          a.phone,
+          a.email,
+          a.created,
+          a.updated
+    </sql>
+    <!--管理员登录-->
+    <select id="getByEmailAndPassword" resultType="com.yuan.myproject.entity.User">
+        SELECT
+      <include refid="selectUserColumns"></include>
+        FROM
+        user AS a
+        WHERE   flag=1 AND
+        a.email = #{email} AND a.password=#{password}
+    </select>
+
+    <select id="getById" resultType="com.yuan.myproject.entity.User">
+        SELECT
+        <include refid="selectUserColumns"></include>
+        FROM
+        user AS a
+        WHERE flag=1 AND
+        a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="com.yuan.myproject.entity.User">
+        select
+        <include refid="selectUserColumns"></include>
+        from user AS a
+        where flag=1
+        <if test="email!=null and email!=''">
+            and a.email like concat('%',#{email},'%')
+        </if>
+        <if test="phone!=null and phone !=''">
+            and a.phone like concat('%',#{phone},'%')
+        </if>
+        <if test="userName!=null and userName!=''">
+            and a.username like concat('%',#{userName},'%')
+        </if>
+        <if test="page!=null">
+            limit #{page.start},#{page.pageSize}
+        </if>
+    </select>
+
+    <select id="findListCount" resultType="java.lang.Long">
+
+        select count(*) from
+         user a
+        where flag=1
+        <if test="email!=null and email!=''">
+            and a.email like concat('%',#{email},'%')
+        </if>
+        <if test="phone!=null and phone !=''">
+            and a.phone like concat('%',#{phone},'%')
+        </if>
+        <if test="userName!=null and userName!=''">
+            and a.username like concat('%',#{userName},'%')
+        </if>
+    </select>
+
+
+    <insert id="save" >
+        insert into user (username,password,email,phone,created,updated) values (#{userName},#{password},#{email},#{phone},#{created},#{updated})
+    </insert>
+
+    <update id="update">
+        update user set username=#{userName},phone=#{phone},email=#{email},updated=#{updated} where flag=1 AND id=#{id}
+    </update>
+
+    <delete id="delete">
+       update user set flag=0 where id=#{id}
+    </delete>
+
+    <delete id="deleteMutil">
+        update user set flag=0 where id in
+
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+
+    </delete>
+
+    <select id="getByBlackUser" resultType="com.yuan.myproject.entity.User">
+        SELECT
+        <include refid="selectUserColumns"></include>
+        FROM
+        user a
+        WHERE flag=0
+    </select>
+
+</mapper>

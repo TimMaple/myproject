@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.myproject.webui.dao.ContentCommentDao">
+
+    <insert id="save">
+        insert into content_comment(user_id,content_id,text,created,updated) values
+        (#{user.id},#{content.id},#{text},#{created},#{updated})
+    </insert>
+
+    <select id="getCount" resultType="java.lang.Long">
+        select count(*)
+         from content_comment a
+          where a.content_id = #{content.id}
+    </select>
+    
+    <select id="findList" resultType="com.yuan.myproject.entity.ContentComment">
+         select 
+          b.userName as "user.userName",a.text
+         from content_comment a
+         left join user b on a.user_id = b.id
+         where a.content_id = #{content.id}
+    </select>
+
+    <delete id="deleteUserIdAndId">
+        delete
+        from content_comment
+        where id = #{id} and user_id = #{user.id}
+    </delete>
+
+</mapper>

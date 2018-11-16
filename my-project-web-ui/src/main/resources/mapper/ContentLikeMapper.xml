@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.myproject.webui.dao.ContentLikeDao">
+    
+    <select id="contentLikeCloumns">
+        id as "id",
+        a.id as "userId",
+        b.id as "contentId",
+        created,
+        updated
+    </select>
+    
+    <select id="Count" resultType="java.lang.Integer">
+        select count(*)
+         from content_like c
+          left join content b on c.content_id = b.id
+          where b.id = #{contentId}
+    </select>
+    
+    <select id="getByUserIdAndContentId" resultType="com.yuan.myproject.entity.ContentLike">
+        select id
+        from content_like
+        where user_id = #{userId.id} and content_id = #{contentId.id}
+    </select>
+
+    <insert id="save">
+        insert into content_like(user_id,content_id,created,updated) value(#{userId.id},#{contentId.id},#{created},#{updated})
+    </insert>
+    
+    <delete id="delete">
+        delete from content_like where id = #{id}
+    </delete>
+
+</mapper>

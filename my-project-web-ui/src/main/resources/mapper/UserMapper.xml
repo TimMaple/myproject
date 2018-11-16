@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.myproject.webui.dao.UserDao">
+    <sql id="UserColumns">
+        id as "id",
+        username as "userName",
+        password as "password",
+        phone as "phone",
+        email as "email",
+        created as "created",
+        updated as "updated"
+    </sql>
+
+    <select id="getUserByUsernameAndPassword" resultType="com.yuan.myproject.entity.User">
+        select <include refid="UserColumns"></include>  from user a where a.username=#{userName} and a.password =#{password}
+    </select>
+
+    <insert id="save">
+        insert into user(username,password,phone,email,created,updated) values (#{userName},#{password},#{phone},#{email},#{created},#{updated})
+    </insert>
+
+    <select id="getById" resultType="com.yuan.myproject.entity.User">
+        select <include refid="UserColumns"></include> from user a where a.id=${id}
+    </select>
+
+    <update id="update">
+        update user set username=#{userName},phone=#{phone},email=#{email},updated=#{updated},created=#{created} where id=#{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace  写的是Dao这个interface接口-->
+<mapper namespace="com.yuan.myproject.admin.dao.CategoryDao">
+<sql id="all">
+    a.id,
+    a.name,
+    IFNULL(a.parent_id,0) as "parent.id",
+    IFNULL(b.is_parent,0) as "parent.isParent",
+    IFNULL(b.name,'/') as "parent.name",
+    a.is_parent as "isParent",
+    a.created,
+    a.updated,
+    a.c_order as "order"
+</sql>
+
+<!--a.is_parent 1 代表本身是父节点  0 代表本身不是父节点-->
+    <!--设置不是父节点-->
+    <update id="setIsParentFalse">
+       update category set is_parent = 0 where id = #{id}
+    </update>
+    <!--设置是父节点-->
+    <update id="setIsParentTrue">
+        update category set is_parent = 1 where id = #{id}
+    </update>
+    <!--添加-->
+    <insert id="save">
+        insert into category(name,parent_id,c_order,created,updated,is_parent) values (#{name},#{parent.id},#{order},#{created},#{updated},0)
+    </insert>
+    <!--删除-->
+    <delete id="delete">
+        delete from category where id = #{id}
+    </delete>
+    <!--修改-->
+    <update id="update">
+        update category set name=#{name},parent_id=#{parent.id},updated=#{updated},c_order=#{order} where id=#{id}
+    </update>
+
+    <select id="getlist" resultType="com.yuan.myproject.entity.Category">
+        select <include refid="all"></include> from category a
+        LEFT join category b on a.parent_id = b.id where 2=2
+    </select>
+
+    <!--根据id查询单个-->
+    <select id="getById" resultType="com.yuan.myproject.entity.Category">
+        select <include refid="all"></include> from category a
+        LEFT join category b on a.parent_id = b.id where a.id = #{id}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="findListCount" resultType="java.lang.Long">
+         select count(*) from category
+    </select>
+
+<!--查询子节点   前台添加或者修改的树形结构图-->
+    <select id="queryChildrenCategory" resultType="com.yuan.myproject.entity.Category">
+        select
+        <include refid="all"></include>
+        from category a
+        left join category b on a.parent_id=b.id
+        where a.parent_id=#{id}
+    </select>
+<!--展示列表的树形展示-->
+    <select id="queryTreeTable" resultType="com.yuan.myproject.entity.Category">
+        select
+        <include refid="all"></include>
+        from category a
+        left join category b on a.parent_id=b.id
+        order by a.parent_id asc,a.c_order asc,a.id asc
+    </select>
+
+</mapper>

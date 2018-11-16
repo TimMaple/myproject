@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuan.myproject.admin.dao.ContentDao">
+    <!-- 遍历回显相应的映射 -->
+    <sql id="contentColumn">
+        a.id,
+        a.category_id AS "parent.id",
+        b.name AS "parent.name",
+        a.author,
+        a.title,
+        a.sub_title AS subTitle,
+        a.text,
+        a.created,
+        a.updated,
+        a.pic1,
+        a.pic2,
+        a.pic3
+    </sql>
+    <!-- 回显的模糊查询判断的条件 -->
+    <!--
+        1. 根据分类名字查询
+        2. 根据作者名称查询
+        3. 根据标题查询
+        4. 根据副标题查询
+    -->
+    <sql id="findListCondition">
+        <if test="parent!=null and parent.name!=null and parent.name!=''">
+            and b.name LIKE concat('%',#{parent.name},'%')
+        </if>
+        <if test="author!=null and author!=''">
+            and a.author LIKE concat('%',#{author},'%')
+        </if>
+        <if test="title!=null and title!=''">
+            and a.title LIKE concat('%',#{title},'%')
+        </if>
+        <if test="subTitle!=null and subTitle!=''">
+            and a.sub_title LIKE concat('%',#{subTitle},'%')
+        </if>
+    </sql>
+
+    <!-- 查询结果的条数 -->
+    <select id="findListCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM content a LEFT JOIN category b
+        ON a.category_id=b.id
+        WHERE 6=6 <include refid="findListCondition"></include>
+    </select>
+
+    <!-- 查询结果的回显，会根据where模糊查询，如果page不为空，则根据偏移量显示 -->
+    <select id="findList" resultType="com.yuan.myproject.entity.Content">
+        SELECT <include refid="contentColumn"></include>
+        FROM content a LEFT JOIN category b
+        ON a.category_id=b.id
+        WHERE 6=6 <include refid="findListCondition"></include>
+        <if test="page!=null">
+            limit #{page.start},#{page.pageSize}
+        </if>
+    </select>
+
+    <!-- 根据传入id查询相应的的结果 -->
+    <select id="getById" resultType="com.yuan.myproject.entity.Content">
+        SELECT <include refid="contentColumn"></include>
+        FROM content a LEFT JOIN category b
+        ON a.category_id=b.id WHERE a.id=#{id}
+    </select>
+
+    <!-- 保存的sql语句 -->
+    <insert id="save">
+        INSERT INTO content (category_id,author,title,sub_title,text,created,updated,pic1,pic2,pic3)
+        VALUES (#{parent.id},#{author},#{title},#{subTitle},#{text},#{created},#{updated},#{pic1},#{pic2},#{pic3})
+    </insert>
+
+    <!-- 修改的sql语句 -->
+    <update id="update">
+        UPDATE content SET
+        category_id=#{parent.id},
+        author=#{author},
+        title=#{title},
+        sub_title=#{subTitle},
+        text=#{text},
+        pic1=#{pic1},
+        pic2=#{pic2},
+        pic3=#{pic3},
+        updated=#{updated}
+        WHERE id=#{id}
+    </update>
+
+    <!-- 删除的sql语句 -->
+    <delete id="delete">
+        DELETE FROM content WHERE id=#{id};
+    </delete>
+
+    <!-- 批量删除的sql语句 -->
+    <delete id="deleteMutil">
+        DELETE FROM content WHERE id IN 
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
